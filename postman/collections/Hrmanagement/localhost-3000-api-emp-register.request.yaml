@@ -1,0 +1,19 @@
+$kind: http-request
+name: localhost:3000/api/emp/register
+description: ""
+url: localhost:3000/api/emp/login
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \ \r
+
+    \"email\":\"akhii04@gamil.com\",\r
+
+    \"password\":\"12345\"   \r
+
+    \r
+
+    }"
+order: 1790052735826

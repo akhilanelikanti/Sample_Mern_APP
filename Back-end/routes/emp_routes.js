@@ -1,11 +1,69 @@
-let express=require('express');
-let app=express();
-// this is the main entry point for the back-end server. It sets up the express app and imports the emp routes.
-let hrRoutes=require('./routes/emp_routes');
+let express = require('express');
+let router = express.Router();
+let users = require('../models/users');
+let bcrypt = require('bcrypt');
 
-app.use('/api/hr', hrRoutes); 
-// localhost:3000/api/hr/viewemployees 
-// run the server
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
-})
+
+// REGISTER
+router.post("/register", async (req, res) => {
+    try {
+        let data = req.body;
+
+        data.password = await bcrypt.hash(data.password, 10);
+
+        let newuser = new users(data);
+
+        let result = await newuser.save();
+
+        res.status(201).send(result);
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            message: "Registration failed",
+            error: error.message
+        });
+    }
+});
+
+
+// LOGIN
+router.post("/login", async (req, res) => {
+    try {
+        let data = req.body;
+
+        let emailcheck = await users.findOne({
+            email: data.email
+        });
+
+        if (!emailcheck) {
+            return res.send("user not found");
+        }
+
+        let passcheck = await bcrypt.compare(
+            data.password,
+            emailcheck.password
+        );
+
+        if (passcheck) {
+            return res.send("login successful");
+        } else {
+            return res.send("wrong password");
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            message: "Login failed",
+            error: error.message
+        });
+    }
+});
+
+
+router.get("/viewtask", (req, res) => {
+    res.send("view task page called");
+});
+
+
+module.exports = router;
