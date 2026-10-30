@@ -1,69 +1,83 @@
+
 let express = require('express');
 let router = express.Router();
-let users = require('../models/users');
+let { users } = require('../models/users');
 let bcrypt = require('bcrypt');
 
-
-// REGISTER
 router.post("/register", async (req, res) => {
     try {
         let data = req.body;
 
-        data.password = await bcrypt.hash(data.password, 10);
+        let hashedPassword = await bcrypt.hash(data.password, 10);
+        
 
-        let newuser = new users(data);
+        let newuser = new users({
+            name: data.name,
+            email: data.email,
+            password: hashedPassword,
+            role: data.role
+        });
 
         let result = await newuser.save();
 
-        res.status(201).send(result);
+        res.status(201).json({
+            message: "Registration successful",
+            user: result
+        });
 
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({
+    } catch (err) {
+        console.log("Registration error:", err);
+        res.status(500).json({
             message: "Registration failed",
-            error: error.message
+            error: err.message
         });
     }
 });
 
-
-// LOGIN
 router.post("/login", async (req, res) => {
     try {
         let data = req.body;
 
-        let emailcheck = await users.findOne({
-            email: data.email
-        });
+        let emailcheck = await users.findOne({ email: data.email });
 
         if (!emailcheck) {
-            return res.send("user not found");
+            return res.status(404).json({
+                message: "User not found"
+            });
         }
 
-        let passcheck = await bcrypt.compare(
+        let matchpass = await bcrypt.compare(
             data.password,
             emailcheck.password
         );
 
-        if (passcheck) {
-            return res.send("login successful");
-        } else {
-            return res.send("wrong password");
+        if (matchpass) {
+            return res.json({
+                message: "Login successful",
+                user: {
+                    _id: emailcheck._id,
+                    name: emailcheck.name,
+                    email: emailcheck.email,
+                    role: emailcheck.role
+                }
+            });
         }
 
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({
+        res.status(401).json({
+            message: "Invalid credentials"
+        });
+
+    } catch (err) {
+        console.log("Login error:", err);
+        res.status(500).json({
             message: "Login failed",
-            error: error.message
+            error: err.message
         });
     }
 });
 
-
 router.get("/viewtask", (req, res) => {
     res.send("view task page called");
 });
-
 
 module.exports = router;

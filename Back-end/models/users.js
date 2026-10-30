@@ -1,27 +1,16 @@
+
 let mongoose = require('mongoose');
 
-let userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
-
-    email: {
-        type: String,
-        required: true
-    },
-
-    password: {
-        type: String,
-        required: true
-    },
-
+let userSchema = mongoose.Schema({
+    name: String,
+    email: String,
+    password: String,
     role: {
         type: String,
-        required: true
+        enum: ["HR", "EMPLOYEE"]
     }
 });
 
 let users = mongoose.model('users', userSchema);
 
-module.exports = users;
+module.exports = { users };

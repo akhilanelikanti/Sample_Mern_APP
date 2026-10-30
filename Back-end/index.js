@@ -1,28 +1,20 @@
-let express = require('express');
-let app = express();
-let mongoose = require('mongoose');
-// Main entry point for the back-end server
-// Sets up Express and imports HR and Employee routes
-let hrRoutes = require('./routes/hr_routes');
-let empRoutes = require('./routes/emp_routes');
-// indicating server incoming json format data1
+let express=require('express');
+let app=express();
+let cors=require('cors')
+let mongoose=require('mongoose');
+let hrroutes=require('./routes/hr_routes');
+let emproutes=require('./routes/emp_routes');
+//indicating server incoming json format data
+app.use(cors()) 
 app.use(express.json());
+mongoose.connect("mongodb://localhost:27017/Hrmanagement").then(
+    ()=>{console.log("db connect success")}).catch(
+        (err)=>console.log(err));
 
-// Connect to MongoDB
-mongoose.connect("mongodb://localhost:27017/Hrmanagement") 
-    .then(() => {
-        console.log("DB connect success");
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+app.use("/api/hr",hrroutes);
+app.use("/api/emp",emproutes);
 
-// Routes
-app.use('/api/hr', hrRoutes);
-
-app.use('/api/emp', empRoutes);
-
-// Run the server
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
-});
+//run the server
+app.listen(3000,()=>{
+    console.log("server listening on port 3000");
+})

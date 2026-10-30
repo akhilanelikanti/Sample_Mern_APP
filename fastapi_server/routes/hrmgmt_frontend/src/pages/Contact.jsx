@@ -3,15 +3,14 @@ function Contact(){
     let [name, setName] = useState("")
     let [age, setAge] = useState(18)
     let [phone, setPhone] = useState("")
-
+    
     let RegisterData=(event)=>{
         event.preventDefault();
-        // used to collect all data from the form
+        //used to collect all the data from the forms
         console.log(name);
         console.log(age);
         
     }
-
  return(
     <div>
         <h1>Contact page called</h1>
